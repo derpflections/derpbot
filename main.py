@@ -1,18 +1,53 @@
 import os
+import nacl
 import discord
 from dotenv import load_dotenv
+from discord.ext import commands
 load_dotenv()
 
-client = discord.Client(intents=discord.Intents.all())
+bot = commands.Bot(command_prefix='$', intents=discord.Intents.all())
+class NotConnectedError(Exception):
+    "Raised when not connected to voice channel"
+    pass
 
-@client.event
+
+@bot.command()
+async def ping(context):
+  await context.send(f"Pong! Latency is {bot.latency*1000:.3f}ms")
+
+@bot.command(name = "join", help = "use your fucking eyes")
+async def join(ctx):
+    print(ctx)
+    if not ctx.message.author.voice:
+        await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.name))
+        return
+    else:
+        channel = ctx.message.author.voice.channel
+    await channel.connect()
+
+
+@bot.command(name = "leave", help = "use your fucking eyes")
+async def leave(ctx):
+    try:
+        channel = ctx.message.guild.voice_client
+        if channel is None:
+            raise NotConnectedError
+        await channel.disconnect()
+    except NotConnectedError:
+        await ctx.send("I am not currently connected to any channel!")
+    return
+
+@bot.event
 async def on_ready():
-    print("online")
+    print("working and online!")
 
-@client.event
+@bot.event
 async def on_message(message):
-    if message.author != client.user:
-        await message.channel.send(message.content[::1])
+   await bot.process_commands(message)
+   if (message.author.global_name == "datderps" or message.author.global_name == "derpflections") and message.channel.id == 1145004637515173949: 
+        print(message)
+        await message.channel.send(message.content)
+
 
 token = os.getenv('token')
-client.run(token)
+bot.run(token)
