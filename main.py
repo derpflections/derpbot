@@ -1,5 +1,7 @@
 import os
 import discord
+from dotenv import load_dotenv
+load_dotenv()
 
 client = discord.Client(intents=discord.Intents.all())
 
@@ -12,5 +14,5 @@ async def on_message(message):
     if message.author != client.user:
         await message.channel.send(message.content[::1])
 
-token = "MTE0NDg4MjYyMDE1NzY2MTI4NQ.GbTvNt.hlsQzk9F6faYi4WSjQxytI7bBB6BUH6u0JQmA8"
+token = os.getenv('token')
 client.run(token)
