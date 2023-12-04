@@ -1,5 +1,6 @@
 import os
 import nacl
+import asyncio
 import discord
 from dotenv import load_dotenv
 from discord.ext import commands
@@ -15,15 +16,19 @@ class NotConnectedError(Exception):
 async def ping(context):
   await context.send(f"Pong! Latency is {bot.latency*1000:.3f}ms")
 
+
 @bot.command(name = "join", help = "use your fucking eyes")
 async def join(ctx):
-    print(ctx)
     if not ctx.message.author.voice:
         await ctx.send("{} is not connected to a voice channel".format(ctx.message.author.name))
         return
     else:
         channel = ctx.message.author.voice.channel
-    await channel.connect()
+        if not ctx.message.guild.voice_client is None:
+            await ctx.send("I am already connected to a voice channel!")
+        else:
+            await channel.connect()
+        return
 
 
 @bot.command(name = "leave", help = "use your fucking eyes")
@@ -41,12 +46,12 @@ async def leave(ctx):
 async def on_ready():
     print("working and online!")
 
-@bot.event
-async def on_message(message):
-   await bot.process_commands(message)
-   if (message.author.global_name == "datderps" or message.author.global_name == "derpflections") and message.channel.id == 1145004637515173949: 
-        print(message)
-        await message.channel.send(message.content)
+# @bot.event
+# async def on_message(message):
+#    await bot.process_commands(message)
+#    if (message.author.global_name == "datderps" or message.author.global_name == "derpflections") and message.channel.id == 1145004637515173949: 
+#         print(message)
+#         await message.channel.send(message.content)
 
 
 token = os.getenv('token')
